@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile Java sources",
+            "type": "shell",
+            "command": "$sources = Get-ChildItem -Path src -Recurse -Filter '*.java' | ForEach-Object { $_.FullName }; if (-not $sources) { throw 'No Java source files found under src.' }; New-Item -ItemType Directory -Force -Path out | Out-Null; javac -d out $sources; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "powershell.exe",
+                    "args": [
+                        "-NoProfile",
+                        "-ExecutionPolicy",
+                        "Bypass",
+                        "-Command"
+                    ]
+                }
+            },
+            "problemMatcher": "$javac",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Run Railway Ticket Management System",
+            "type": "shell",
+            "command": "java -cp out com.railway.Main",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Compile Java sources",
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        }
+    ]
+}

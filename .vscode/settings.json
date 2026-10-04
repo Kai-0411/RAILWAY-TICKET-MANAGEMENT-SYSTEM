@@ -1,0 +1,44 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#485565",
+        "activityBar.activeBorder": "#e7e7e7",
+        "activityBar.background": "#485565",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#a27d8e",
+        "activityBarBadge.foreground": "#15202b",
+        "activityBarTop.activeBackground": "#485565",
+        "activityBarTop.activeBorder": "#e7e7e7",
+        "activityBarTop.background": "#485565",
+        "activityBarTop.foreground": "#e7e7e7",
+        "activityBarTop.inactiveForeground": "#e7e7e799",
+        "commandCenter.border": "#e7e7e799",
+        "commandCenter.foreground": "#e7e7e7",
+        "sash.hoverBorder": "#485565",
+        "statusBar.background": "#333c47",
+        "statusBar.debuggingBackground": "#333c47",
+        "statusBar.debuggingForeground": "#e7e7e7",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBar.inactiveBackground": "#333c47",
+        "statusBarItem.hoverBackground": "#485565",
+        "statusBarItem.remoteBackground": "#946b7d",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#333c47",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#333c4799",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#333c47",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.project.sourcePaths": [
+        "src"
+    ],
+    "java.project.outputPath": "out",
+    "files.exclude": {
+        "**/out": true
+    },
+    "code-runner.runInTerminal": true,
+    "code-runner.executorMap": {
+        "java": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"$workspaceRoot\\.vscode\\run-java.ps1\""
+    }
+}

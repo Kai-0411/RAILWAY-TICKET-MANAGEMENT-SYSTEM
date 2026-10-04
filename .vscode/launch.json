@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run Railway Ticket Management System",
+            "request": "launch",
+            "mainClass": "com.railway.Main",
+            "preLaunchTask": "Compile Java sources",
+            "console": "integratedTerminal"
+        }
+    ]
+}
