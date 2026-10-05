@@ -70,7 +70,7 @@ public class Main {
             destination = readStation(scanner, "Destination station:", train.getRoute());
         }
 
-        Passenger passenger = new Passenger(
+        Passenger passenger =  new Passenger(
             UUID.randomUUID().toString(),
             name,
             age,
