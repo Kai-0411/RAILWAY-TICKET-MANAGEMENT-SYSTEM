@@ -1,6 +1,7 @@
 package com.railway.model;
 
-public enum BerthPreference {
+public enum BerthPreference 
+{
     LOWER,
     MIDDLE,
     UPPER,
