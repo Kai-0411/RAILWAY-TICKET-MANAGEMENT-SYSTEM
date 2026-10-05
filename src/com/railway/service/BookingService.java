@@ -18,7 +18,7 @@ public class BookingService {
         this.pricingStrategy = pricingStrategy;
     }
 
-    public void registerTrain(Train train) {
+    public void  registerTrain(Train train) {
         trainRepository.put(train.getTrainNumber(), train);
     }
 
