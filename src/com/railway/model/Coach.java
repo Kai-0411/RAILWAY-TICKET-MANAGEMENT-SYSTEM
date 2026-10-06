@@ -1,5 +1,6 @@
 package com.railway.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,38 +43,55 @@ public class Coach
 
     public Optional<Seat> allocateSeat(BerthPreference preference, int fromSegment, int toSegment) 
     {
+        return allocateSeat(preference, LocalDate.now(), fromSegment, toSegment);
+    }
+
+    public Optional<Seat> allocateSeat(
+        BerthPreference preference,
+        LocalDate journeyDate,
+        int fromSegment,
+        int toSegment
+    ) 
+    {
         coachLock.lock();
         try 
-            {
-            // Priority 1: Match exact requested berth
+        {
             if (preference != BerthPreference.NO_PREFERENCE) 
             {
                 for (Seat seat : seats) 
                 {
-                    if (seat.getBerthType() == preference && seat.reserve(fromSegment, toSegment)) 
+                    if (seat.getBerthType() == preference
+                            && seat.reserve(journeyDate, fromSegment, toSegment)) 
                     {
                         return Optional.of(seat);
                     }
                 }
             }
-            // Priority 2: Fallback to any remaining seat
             for (Seat seat : seats) 
             {
-                if (seat.reserve(fromSegment, toSegment)) 
+                if (seat.reserve(journeyDate, fromSegment, toSegment)) 
                 {
                     return Optional.of(seat);
                 }
             }
             return Optional.empty();
-        } finally 
-            {
+        } 
+        finally 
+        {
             coachLock.unlock();
         }
     }
 
     public long getAvailableSeatCount(int fromSegment, int toSegment) 
     {
-        return seats.stream().filter(seat -> seat.isAvailable(fromSegment, toSegment)).count();
+        return getAvailableSeatCount(LocalDate.now(), fromSegment, toSegment);
+    }
+
+    public long getAvailableSeatCount(LocalDate journeyDate, int fromSegment, int toSegment) 
+    {
+        return seats.stream()
+            .filter(seat -> seat.isAvailable(journeyDate, fromSegment, toSegment))
+            .count();
     }
 
     public String getCoachId()
