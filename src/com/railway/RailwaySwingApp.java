@@ -680,7 +680,7 @@ public final class RailwaySwingApp extends JFrame {
             ticket.getDestination().distanceKm() - ticket.getSource().distanceKm()
         );
         StringBuilder details = new StringBuilder()
-            .append("PNR:          ").append(ticket.getPnr()).append('\n')
+            .append("PNR:         ").append(ticket.getPnr()).append('\n')
             .append("Status:      ").append(ticket.getStatus()).append('\n')
             .append("Train:       ").append(ticket.getTrainNumber())
             .append(" - ").append(train.getTrainName()).append('\n')
