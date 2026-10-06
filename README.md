@@ -1,24 +1,31 @@
 # Railway Ticket Management System
 
-A Java console application for booking and managing railway tickets. Passengers can select a train and route, request a berth preference, receive a confirmed or waitlisted booking, check a ticket by PNR, and cancel a booking.
+A Java railway ticket application with a Swing desktop interface and a console alternative. Passengers can select a train and route, request a berth preference, receive a confirmed or waitlisted booking, check a ticket by PNR, and cancel a booking.
 
 The sample network has four independent train services between New Delhi, Kanpur Central, and Howrah Junction:
 
-| Train | Direction | Class | Seats |
-| --- | --- | --- | ---: |
-| 12302 - Howrah Rajdhani Express | New Delhi -> Kanpur Central -> Howrah Junction | Third AC | 3 |
-| 12304 - Howrah Mail | New Delhi -> Kanpur Central -> Howrah Junction | Third AC | 3 |
-| 12301 - New Delhi Rajdhani Express | Howrah Junction -> Kanpur Central -> New Delhi | Third AC | 3 |
-| 12303 - New Delhi Mail | Howrah Junction -> Kanpur Central -> New Delhi | Third AC | 3 |
+| Train | Direction | Sample departure | Available classes | Seats per class |
+| --- | --- | --- | --- | ---: |
+| 12302 - Howrah Rajdhani Express | New Delhi -> Kanpur Central -> Howrah Junction | 16:55 | First AC, Second AC, Third AC, Sleeper, General | 3 |
+| 12304 - Howrah Mail | New Delhi -> Kanpur Central -> Howrah Junction | 19:30 | First AC, Second AC, Third AC, Sleeper, General | 3 |
+| 12301 - New Delhi Rajdhani Express | Howrah Junction -> Kanpur Central -> New Delhi | 17:10 | First AC, Second AC, Third AC, Sleeper, General | 3 |
+| 12303 - New Delhi Mail | Howrah Junction -> Kanpur Central -> New Delhi | 21:00 | First AC, Second AC, Third AC, Sleeper, General | 3 |
 
 ## Features
 
-- Interactive terminal menu for booking, cancellation, ticket lookup, and exit.
-- Separate seat inventory and waitlist for each train.
+- Swing desktop booking flow: route/date search, available-train selection with seat counts for each class, passenger details including class, review with distance and fare, and payment confirmation.
+- View availability for First AC, Second AC, Third AC, Sleeper, and General on each train; select the class in the passenger details form and see its date-specific seat/waitlist count.
+- Swing ticket lookup and cancellation by numeric PNR; ticket details include train number and name, journey date, and distance.
+- Interactive terminal menu remains available for booking, cancellation, ticket lookup, and exit.
+- Separate seat inventory and waitlist for each train and journey date.
 - Segment-based seat allocation: the same seat can serve consecutive journeys that do not overlap, such as Howrah -> Kanpur and Kanpur -> New Delhi.
 - Berth preference matching with fallback to another available berth.
+- Berth preferences are requests only and are subject to availability; another berth may be assigned.
 - Fare calculation based on journey distance and class multiplier.
 - Waitlisted passengers can be promoted when a cancellation frees all the segments they need; promotion retains the original PNR.
+- Cancellation charge: 10% at least 48 hours before departure; 25% from 24 to under 48 hours; 100% under 24 hours. Cancellation is closed at or after departure.
+- Cancellation confirmation shows the scheduled departure, remaining time, cancellation charge, and refund amount before confirming.
+- The sample departure times are illustrative. Cancellation charges and refunds are calculated and shown in-app; there is no live payment/refund gateway, so no money is transferred.
 - Displays remaining seats for the booked train and journey.
 
 ## Requirements
@@ -26,49 +33,54 @@ The sample network has four independent train services between New Delhi, Kanpur
 - JDK 17 or later
 - VS Code is optional
 
-## Run from a terminal
+## Run the Swing interface
 
-From the project root, compile all Java source files and launch the application:
+From the project root, compile the Java source files and launch the desktop interface:
 
 ```powershell
 $sources = Get-ChildItem -Path src -Recurse -Filter '*.java' | ForEach-Object { $_.FullName }
 javac -d out $sources
+java -cp out com.railway.RailwaySwingApp
+```
+
+To use the original console menu instead, run:
+
+```powershell
 java -cp out com.railway.Main
 ```
 
-The generated `out` directory and `.class` files are ignored by Git.
-
-In VS Code, open the project root folder. You can run with **F5** using the Java launch configuration or use the Code Runner **Run Code** button; both launch the interactive program in the integrated terminal.
+The generated `out` directory and `.class` files are ignored by Git. In VS Code, **F5** launches the Swing interface; choose the console configuration to run the terminal menu.
 
 ## Booking flow
 
 ```mermaid
 flowchart TD
-    A[Passenger selects Book Ticket] --> B[Select train]
-    B --> C[Enter passenger details and berth preference]
-    C --> D[Select source and destination on train route]
-    D --> E{Route is valid?}
-    E -- No --> D
-    E -- Yes --> F[BookingService calculates fare]
-    F --> G[Train searches matching coaches and seats]
-    G --> H{Seat free for every journey segment?}
-    H -- Yes --> I[Reserve seat segments]
-    I --> J[Create CONFIRMED ticket and PNR]
-    H -- No --> K[Add passenger to that train's waitlist]
-    K --> L[Create WAITLISTED ticket and PNR]
-    J --> M[Show status, fare, PNR, and journey availability]
-    L --> M
+    A[Passenger selects Book Ticket] --> B[Choose source, destination, and journey date]
+    B --> C[Select a train and compare seats available in each class]
+    C --> D[Enter passenger name, age, berth preference, and class]
+    D --> E[Review train, date, class, distance, and fare]
+    E --> F{Proceed to payment?}
+    F -- No --> B
+    F -- Yes --> G[BookingService calculates fare for selected class]
+    G --> H[Train searches matching coach and seats for selected date and class]
+    H --> I{Seat free for every journey segment?}
+    I -- Yes --> J[Reserve seat segments for selected date and class]
+    J --> K[Create CONFIRMED ticket with numeric PNR]
+    I -- No --> L[Add passenger to that train, date, and class waitlist]
+    L --> M[Create WAITLISTED ticket with numeric PNR]
+    K --> N[Show status, fare, PNR, and journey availability]
+    M --> N
 ```
 
 ## Cancellation and waitlist promotion
 
 ```mermaid
 flowchart TD
-    A[Passenger enters PNR to cancel] --> B{Ticket exists and is active?}
+    A[Passenger enters numeric PNR to cancel] --> B{Ticket exists and is active?}
     B -- No --> C[Show cancellation error]
     B -- Yes --> D[Release ticket's seat segments]
-    D --> E[Mark ticket CANCELLED]
-    E --> F[Check waitlisted passengers for this train]
+    D --> E[Mark ticket CANCELLED for its journey date]
+    E --> F[Check waitlisted passengers for this train and date]
     F --> G{A waiting journey now has a free seat?}
     G -- No --> H[Keep passenger waitlisted]
     H --> F
@@ -82,15 +94,17 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    U[Passenger] --> CLI[Main: console menu and input]
-    CLI --> BS[BookingService]
+    U[Passenger] --> SW[RailwaySwingApp: booking steps and PNR screens]
+    U --> CLI[Main: console menu]
+    SW -->|booking after payment confirmation, lookup, cancellation| BS[BookingService]
+    CLI --> BS
     BS --> PR[PricingStrategy]
     BS --> TR[Train registry]
     BS --> TKR[Ticket registry]
     BS --> WL[Waitlist mapping]
     TR --> T[Train: route and waitlist]
     T --> C[Coach: class and seats]
-    C --> S[Seat: occupancy by route segment]
+    C --> S[Seat: occupancy by journey date and route segment]
     BS -->|book, cancel, promote| T
     TKR -->|PNR lookup| CLI
 ```
@@ -110,5 +124,5 @@ For example, New Delhi -> Howrah is 1,450 km. Third AC uses a multiplier of 1.1,
 - Train names, routes, classes, and seat counts are configured in `Main.java`.
 - Passenger and booking information are entered at runtime.
 - Tickets, seat occupancy, and waitlists are held in memory and reset when the application exits.
-- The console currently books one passenger per booking.
+- The console currently books one passenger per booking on the current date. Swing payment confirmation and cancellation refunds are calculations only and are not connected to an external payment provider.
 - This is a learning/demo project, not a live railway reservation or payment service.
