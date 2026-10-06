@@ -364,7 +364,7 @@ public final class RailwaySwingApp extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        search.add(fieldLabel("Numeric PNR"), constraints);
+        search.add(fieldLabel("PNR"), constraints);
         constraints.gridx = 1;
         constraints.weightx = 1;
         search.add(pnrField, constraints);
@@ -577,7 +577,7 @@ public final class RailwaySwingApp extends JFrame {
             JOptionPane.showMessageDialog(
                 this,
                 "Payment confirmed.\nBooking " + ticket.getStatus()
-                    + "\nNumeric PNR: " + ticket.getPnr(),
+                    + "\nPNR: " + ticket.getPnr(),
                 "Booking complete",
                 JOptionPane.INFORMATION_MESSAGE
             );
@@ -592,7 +592,7 @@ public final class RailwaySwingApp extends JFrame {
     private void findTicket() {
         String pnr = pnrField.getText().trim();
         if (!pnr.matches("\\d+")) {
-            showError("Enter the numeric PNR shown on your ticket.");
+            showError("Enter the PNR shown on your ticket.");
             return;
         }
         Optional<Ticket> ticket = bookingService.getTicket(pnr);
@@ -607,7 +607,7 @@ public final class RailwaySwingApp extends JFrame {
     private void cancelTicket() {
         String pnr = pnrField.getText().trim();
         if (!pnr.matches("\\d+")) {
-            showError("Enter the numeric PNR shown on your ticket.");
+            showError("Enter the PNR shown on your ticket.");
             return;
         }
         CancellationResult quote;
@@ -680,7 +680,7 @@ public final class RailwaySwingApp extends JFrame {
             ticket.getDestination().distanceKm() - ticket.getSource().distanceKm()
         );
         StringBuilder details = new StringBuilder()
-            .append("Numeric PNR: ").append(ticket.getPnr()).append('\n')
+            .append("PNR:          ").append(ticket.getPnr()).append('\n')
             .append("Status:      ").append(ticket.getStatus()).append('\n')
             .append("Train:       ").append(ticket.getTrainNumber())
             .append(" - ").append(train.getTrainName()).append('\n')
