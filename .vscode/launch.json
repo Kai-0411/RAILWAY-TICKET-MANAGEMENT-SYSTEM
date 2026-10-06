@@ -3,7 +3,15 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Run Railway Ticket Management System",
+            "name": "Railway Ticket Management (Swing)",
+            "request": "launch",
+            "mainClass": "com.railway.RailwaySwingApp",
+            "preLaunchTask": "Compile Java sources",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "Railway Ticket Management (Console)",
             "request": "launch",
             "mainClass": "com.railway.Main",
             "preLaunchTask": "Compile Java sources",
