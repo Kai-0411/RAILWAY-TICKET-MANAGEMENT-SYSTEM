@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.UUID;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class Main {
     private static final SeatClass AVAILABLE_CLASS = SeatClass.THIRD_AC;
@@ -15,16 +17,10 @@ public class Main {
         new Station("CNB", "Kanpur Central", 440),
         new Station("HWH", "Howrah Junction", 1450)
     );
-    private static final List<Train> AVAILABLE_TRAINS = List.of(
-        createTrain("12302", "Howrah Rajdhani Express", STATIONS),
-        createTrain("12304", "Howrah Mail", STATIONS),
-        createTrain("12301", "New Delhi Rajdhani Express", reversedRoute()),
-        createTrain("12303", "New Delhi Mail", reversedRoute())
-    );
+    private static final List<Train> AVAILABLE_TRAINS = createSampleTrains();
 
     public static void main(String[] args) {
-        BookingService bookingService = new BookingService(new StandardDistancePricingStrategy());
-        AVAILABLE_TRAINS.forEach(bookingService::registerTrain);
+        BookingService bookingService = createBookingService(AVAILABLE_TRAINS);
 
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.println("Railway Ticket Booking");
@@ -48,6 +44,21 @@ public class Main {
             }
         }
         System.out.println("Goodbye.");
+    }
+
+    static List<Train> createSampleTrains() {
+        return List.of(
+            createTrain("12302", "Howrah Rajdhani Express", STATIONS, LocalTime.of(16, 55)),
+            createTrain("12304", "Howrah Mail", STATIONS, LocalTime.of(19, 30)),
+            createTrain("12301", "New Delhi Rajdhani Express", reversedRoute(), LocalTime.of(17, 10)),
+            createTrain("12303", "New Delhi Mail", reversedRoute(), LocalTime.of(21, 0))
+        );
+    }
+
+    static BookingService createBookingService(List<Train> trains) {
+        BookingService bookingService = new BookingService(new StandardDistancePricingStrategy());
+        trains.forEach(bookingService::registerTrain);
+        return bookingService;
     }
 
     private static void bookTicket(Scanner scanner, BookingService bookingService) {
@@ -99,8 +110,29 @@ public class Main {
     private static void cancelTicket(Scanner scanner, BookingService bookingService) {
         String pnr = readNonBlank(scanner, "Enter PNR to cancel: ");
         try {
-            bookingService.cancelTicket(pnr);
-            System.out.println("Ticket " + pnr + " cancelled.");
+            CancellationResult quote = bookingService.previewCancellation(pnr);
+            System.out.printf(
+                Locale.ROOT,
+                "Departure: %s | Fare: INR %.2f | Cancellation charge: INR %.2f (%.0f%%) | Refund: INR %.2f%n",
+                quote.departureDateTime().format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")),
+                quote.originalFare(),
+                quote.cancellationCharge(),
+                quote.chargePercentage(),
+                quote.refundAmount()
+            );
+            if (readInt(scanner, "Confirm cancellation? 1. Yes  2. No: ", 1, 2) != 1) {
+                System.out.println("Cancellation not made.");
+                return;
+            }
+            CancellationResult result = bookingService.cancelTicket(pnr);
+            System.out.printf(
+                Locale.ROOT,
+                "Ticket %s cancelled. Charge: INR %.2f (%.0f%%). Refund: INR %.2f%n",
+                pnr,
+                result.cancellationCharge(),
+                result.chargePercentage(),
+                result.refundAmount()
+            );
         } catch (IllegalArgumentException e) {
             System.out.println("Cancellation failed: " + e.getMessage());
         }
@@ -143,7 +175,8 @@ public class Main {
             .reduce((first, second) -> first + " -> " + second)
             .orElse("");
         System.out.println(train.getTrainNumber() + " - " + train.getTrainName() +
-            " | " + route + " | " + AVAILABLE_CLASS + " | 3 seats");
+            " | " + route + " | Departs " + train.getDepartureTime() +
+            " | " + AVAILABLE_CLASS + " | 3 seats");
     }
 
     private static Station readStation(Scanner scanner, String prompt, List<Station> route) {
@@ -156,9 +189,16 @@ public class Main {
         return route.get(choice - 1);
     }
 
-    private static Train createTrain(String trainNumber, String trainName, List<Station> route) {
-        Train train = new Train(trainNumber, trainName, route, 20);
-        train.addCoach(new Coach("B1", AVAILABLE_CLASS, 3));
+    private static Train createTrain(
+        String trainNumber,
+        String trainName,
+        List<Station> route,
+        LocalTime departureTime
+    ) {
+        Train train = new Train(trainNumber, trainName, route, 20, departureTime);
+        for (SeatClass seatClass : SeatClass.values()) {
+            train.addCoach(new Coach("B" + (seatClass.ordinal() + 1), seatClass, 3));
+        }
         return train;
     }
 
