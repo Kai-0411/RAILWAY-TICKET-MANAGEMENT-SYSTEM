@@ -16,6 +16,7 @@ The sample network has four independent train services between New Delhi, Kanpur
 - Swing desktop booking flow: route/date search, available-train selection with seat counts for each class, passenger details including class, review with distance and fare, and payment confirmation.
 - View availability for First AC, Second AC, Third AC, Sleeper, and General on each train; select the class in the passenger details form and see its date-specific seat/waitlist count.
 - Swing ticket lookup and cancellation by numeric PNR; ticket details include train number and name, journey date, and distance.
+- Passenger names accept letters and spaces; numeric PNR input accepts digits only.
 - Interactive terminal menu remains available for booking, cancellation, ticket lookup, and exit.
 - Separate seat inventory and waitlist for each train and journey date.
 - Segment-based seat allocation: the same seat can serve consecutive journeys that do not overlap, such as Howrah -> Kanpur and Kanpur -> New Delhi.
